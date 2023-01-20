@@ -14,38 +14,33 @@ Instead of writing this HTML, we would like to write a Phoenix Component and use
 ```
 
 Let's see how. 
+
 1. First we will understand, what is a Phoenix Component and how to define it?
 2. then, we will understand how to use it?
 3. finally, we will understand why we need Phoenix Component and why certain features of the Phoenix component behave the way it does.
 
 
 ## What is a Phoenix Component?
-Simple definition:
-Phoenix Component is an Elixir function similar to how you define functions in regular Elixir modules that returns an HTML template written using `sigil_H`. That's not a complete definition. As they say "The Devil is in the details". Yes, Phoenix component is a simple Elixir function but it needs to meet the below conditions:
+Phoenix Component is a simple Elixir function, similar to any other functions that you define inside Elixir modules, that returns an HTML template written using `sigil_H`. That's not a complete definition. As they say "The Devil is in the details". Yes, Phoenix component is a simple Elixir function but it needs to meet the below conditions:
 
 * This function should have an arity of 1
 * The argument should always be named as `assigns`
-* The return value of this function should be a template written using `~H`
+* The return value of this function should be a template written using `~H` (`sigil_H`)
 
-The `price` function defined inside `Product.Components` module is an Elixir function that qualifies as a Phoenix Component because it satisfies all the above three conditions.
+The `price` function defined inside `Product.Components` module qualifies as a Phoenix Component because it satisfies all the above three conditions: as it has only arity and that argument is named as `assigns` and the return value of the function is an HTML template written using `~H` (`sigil_H`).
+
 
 ```elixir 
 defmodule Product.Components do
   def display_price(assigns) do
     ~H"""
-    <span class="red"><%= @price %></span>
+    <span class="text-red-600 text-lg"><%= @price %></span>
     """
   end
 end
 ```
 
-But Why should be always keep the argument name as `assigns`? Why should the arity be always one? A simple and naive answer is that's how Phoenix requires you to write it. 
-We will understand the reasoning behind it towards the end. For now, remembers these three rules as the qualifying criteria for an Elixir function to be treated as Phoenix Component.
-
-In the example above, we have defined a simple elixir function `price`. This function qualifies as a Phoenix Component as it has only arity and that argument is named as `assigns` and the last line (in this case the only line) of the function, the return value, of the function is an HTML template written using `sigil_H`.
-
-More complex but complete definition:
-Phoenix Component is an Elixir function similar to how you define functions in regular Elixir modules that returns an EEx compiled string.
+But Why should be always keep the argument name as `assigns`? Why should the arity be always one? A simple and naive answer is that's how Phoenix requires you to write it. We will understand the reasoning behind it towards the end. For now, remember these three rules as the qualifying criteria for an Elixir function to be treated as Phoenix Component.
 
 ## How to use it?
 You can use an Phoenix Component by calling the function name along with the module name like this:
@@ -146,3 +141,8 @@ end
 The first question is why should this function take only one argument. If I have a requirement to pass on multiple values to my functional component, how do I pass it? You can pass multiple values to your component and there is no limit on the number of values you pass to a component. Irrespective of whether you pass on a value as attribute or a slot, Phoenix Component internally merges all these into a single map with multiple key value pairs and then passes this map on the function as `assigns` variable.
 
 This leads to our next question, why should we name the argument as `assigns` and not something else? Moreover, it looks like the variable `assigns` actually never got used. Nowhere in the body we use the variable `assigns`, but then why is it needed? That's because there is a magic happening behind the scene using Elixir macros to make our code look less verbose. Let's remove those magic to see why we need the variable `assigns`. Let's replace `@inner_block` with `Map.fetch(assigns, :inner_block)`. We get the same result but now with more code. In fact, `@inner_block` in the template actually invokes the same code `Map.fetch(assigns, :inner_block)` behind the scene. This is the macro magic that is used by Phoenix to reduce the code developers write and this also should explain why we actually need the argument to be called `assigns`. If we change the argument `assigns` to `something_else`, then the macro magic trigger by `@` will still look for the variable `assigns` and as it doesn't exists, this will throw an error. You can go ahead and change it for yourself and see what happens when you rename `assigns`. 
+
+## What Next?
+If you are watching GO (Gratitude Overflow) Videos for the first time, you might want to watch 
+* "How are these videos structured? And why?" to understand the common pattern I use in my videos so you can understand the concepts in the videos better.
+* "Everything is Premium" to understand why I create these videos and how you can be a part of it?
